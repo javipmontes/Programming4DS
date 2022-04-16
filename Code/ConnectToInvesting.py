@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-
+# Create the directory where the CSVs are going to be stored; If it is already created, pass
 try:
     os.mkdir('data')
     print('Directory created')
@@ -18,38 +18,49 @@ except FileExistsError:
 
 print('----------------')
 
-
+# Mehod for sending the desired dates in the date form
 def enter_date(driver, date_position, date):
+    # Wait until the date element appears
     date_field = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, date_position)))
+    # Clear the date form
     date_field.clear()
+    # Send the desired dates
     date_field.send_keys(date)
 
-
+# Create a class that contains the methods to manage the data extraction application.
 class ConnectToInvesting:
     def __init__(self, url: str, connection_options: list = None):
         self.webdriver_options = Options()
         if connection_options is None:
+            # Define the webdriver connection options
             connection_options = ['--headless', 'window-size=1920,1080', '--no-sandbox', '--disable-dev-shm-usage',
                                   '--disable-notifications']
+        # Store the name and URL of the asset
         self.asset_name = url.split('/')[-1]
         self.url = url+'-historical-data'
         self.connection_options = connection_options
 
+    # Add the connection options to the webdriver
     def connectivity_options(self):
-
         for option in self.connection_options:
             self.webdriver_options.add_argument(option)
 
+    # Save the data in a csv file and store it inside the data folder 
     def save_data(self, data):
         file_name = self.asset_name
         with open('data/{}.csv'.format(file_name), 'w') as f:
             f.write(data)
 
+    # Stablish the connection and extract the required data
     def connection(self, start_date='01/01/2020', end_date='12/31/2020', save_file=True, print_data=False):
+        #Add the connection options to the webdriver
         self.connectivity_options()
+
+        # Connect to the asset URL
         with webdriver.Chrome(ChromeDriverManager().install(), options=self.webdriver_options) as driver:
             driver.get(self.url)
             print('Connected to {}'.format(self.url))
+            # Manage the cookies
             try:
                 driver.find_element_by_id('onetrust-accept-btn-handler').click()
                 print('Cookies accepted!')
@@ -87,7 +98,7 @@ class ConnectToInvesting:
                 print(data.text)
             driver.close()
 
-
+#URLs to be scraped
 assets_url = ['https://www.investing.com/funds/amundi-msci-wrld-ae-c',
               'https://www.investing.com/etfs/ishares-global-corporate-bond-$',
               'https://www.investing.com/etfs/db-x-trackers-ii-global-sovereign-5',
