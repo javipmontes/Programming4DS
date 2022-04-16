@@ -9,3 +9,8 @@ url_dict = {"stocks": "https://www.investing.com/funds/amundi-msci-wrld-ae-c-his
             "cash": "https://www.investing.com/indices/usdollar-historical-data"}
 
 driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+
+#Proceed for all the URLs in the dict
+for key in url_dict.keys():
+    url = url_dict.get(key)
+    print(url)
