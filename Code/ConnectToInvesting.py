@@ -98,17 +98,11 @@ class ConnectToInvesting:
             for row in data.find_elements_by_xpath('//*[@id="curr_table"]/tbody/tr'):
                 date = row.find_element_by_xpath('.//td[1]').text
                 price = row.find_element_by_xpath('.//td[2]').text
-                open = row.find_element_by_xpath('.//td[3]').text
-                high = row.find_element_by_xpath('.//td[4]').text
-                low = row.find_element_by_xpath('.//td[5]').text
                 change = row.find_element_by_xpath('.//td[6]').text
                 row_item = {
-                    "date": date,
-                    "price": price,
-                    "open": open,
-                    "high": high,
-                    "low": low,
-                    "change": change
+                    "Date": date,
+                    "Price": price,
+                    "Change": change
                 }
                 row_list.append(row_item)
 
