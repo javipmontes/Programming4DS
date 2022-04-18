@@ -24,7 +24,7 @@ except FileExistsError:
 
 print('----------------')
 
-# Mehod for sending the desired dates in the date form
+# Function for sending the desired dates in the date form
 def enter_date(driver, date_position, date):
     # Wait until the date element appears
     date_field = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, date_position)))
@@ -32,6 +32,31 @@ def enter_date(driver, date_position, date):
     date_field.clear()
     # Send the desired dates
     date_field.send_keys(date)
+
+#Function for translating the date format to MM/DD/YYYY
+def date_translator(original_date):
+    months_dict = {
+    "Jan": "1,",
+    "Feb": "2,",
+    "Mar": "3,",
+    "Apr": "4,",
+    "May": "5,",
+    "Jun": "6,",
+    "Jul": "7,",
+    "Aug": "8,",
+    "Sep": "9,",
+    "Oct": "10,",
+    "Nov": "11,",
+    "Dec": "12,"    
+    }
+    month_string = original_date.split()[0]
+    month_number = ""
+    for month in months_dict:
+        if(month == month_string):
+            month_number = months_dict.get(month) 
+    date_number = original_date.replace(month_string, month_number).replace(",", "/").replace(" ", "")
+    return date_number
+
 
 # Create a class that contains the methods to manage the data extraction application.
 class ConnectToInvesting:
@@ -100,7 +125,7 @@ class ConnectToInvesting:
                 price = row.find_element_by_xpath('.//td[2]').text
                 change = row.find_element_by_xpath('.//td[6]').text
                 row_item = {
-                    "Date": date,
+                    "Date": date_translator(date),
                     "Price": price,
                     "Change": change
                 }
