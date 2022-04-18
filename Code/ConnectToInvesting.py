@@ -6,13 +6,12 @@ import os
 import pandas as pd
 import warnings
 
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-#Get rid of warning messages
+# Get rid of warning messages
 warnings.filterwarnings("ignore")
 
 # Create the directory where the CSVs are going to be stored; If it is already created, pass
@@ -24,6 +23,7 @@ except FileExistsError:
 
 print('----------------')
 
+
 # Function for sending the desired dates in the date form
 def enter_date(driver, date_position, date):
     # Wait until the date element appears
@@ -33,27 +33,28 @@ def enter_date(driver, date_position, date):
     # Send the desired dates
     date_field.send_keys(date)
 
-#Function for translating the date format to MM/DD/YYYY
+
+# Function for translating the date format to MM/DD/YYYY
 def date_translator(original_date):
     months_dict = {
-    "Jan": "1,",
-    "Feb": "2,",
-    "Mar": "3,",
-    "Apr": "4,",
-    "May": "5,",
-    "Jun": "6,",
-    "Jul": "7,",
-    "Aug": "8,",
-    "Sep": "9,",
-    "Oct": "10,",
-    "Nov": "11,",
-    "Dec": "12,"    
+        "Jan": "1,",
+        "Feb": "2,",
+        "Mar": "3,",
+        "Apr": "4,",
+        "May": "5,",
+        "Jun": "6,",
+        "Jul": "7,",
+        "Aug": "8,",
+        "Sep": "9,",
+        "Oct": "10,",
+        "Nov": "11,",
+        "Dec": "12,"
     }
     month_string = original_date.split()[0]
     month_number = ""
     for month in months_dict:
-        if(month == month_string):
-            month_number = months_dict.get(month) 
+        if month == month_string:
+            month_number = months_dict.get(month)
     date_number = original_date.replace(month_string, month_number).replace(",", "/").replace(" ", "")
     return date_number
 
@@ -68,7 +69,7 @@ class ConnectToInvesting:
                                   '--disable-notifications', 'log-level=3']
         # Store the name and URL of the asset
         self.asset_name = url.split('/')[-1]
-        self.url = url+'-historical-data'
+        self.url = url + '-historical-data'
         self.connection_options = connection_options
 
     # Add the connection options to the webdriver
@@ -80,11 +81,11 @@ class ConnectToInvesting:
     def save_data(self, df):
         file_name = self.asset_name
         with open('data/{}.csv'.format(file_name), 'w') as f:
-            df.to_csv('data/{}.csv'.format(file_name), sep = ";", index=False)
+            df.to_csv('data/{}.csv'.format(file_name), sep=";", index=False)
 
-    # Stablish the connection and extract the required data
+    # Establish the connection and extract the required data
     def connection(self, start_date='01/01/2020', end_date='12/31/2020', save_file=True, print_data=False):
-        #Add the connection options to the webdriver
+        # Add the connection options to the webdriver
         self.connectivity_options()
 
         # Connect to the asset URL
@@ -119,7 +120,7 @@ class ConnectToInvesting:
             data = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'curr_table')))
 
             row_list = []
-            #Access each row of the table
+            # Access each row of the table
             for row in data.find_elements_by_xpath('//*[@id="curr_table"]/tbody/tr'):
                 date = row.find_element_by_xpath('.//td[1]').text
                 price = row.find_element_by_xpath('.//td[2]').text
@@ -131,7 +132,7 @@ class ConnectToInvesting:
                 }
                 row_list.append(row_item)
 
-            #Store the retrieved data in a pandas Dataframe
+            # Store the retrieved data in a pandas Dataframe
             df = pd.DataFrame(row_list)
 
             print('Data received!')
@@ -146,7 +147,8 @@ class ConnectToInvesting:
                 print(df)
             driver.close()
 
-#URLs to be scraped
+
+# URLs to be scraped
 assets_url = ['https://www.investing.com/funds/amundi-msci-wrld-ae-c',
               'https://www.investing.com/etfs/ishares-global-corporate-bond-$',
               'https://www.investing.com/etfs/db-x-trackers-ii-global-sovereign-5',
