@@ -1,16 +1,7 @@
 import pandas as pd
 
-def return_value():
-    go = pd.read_csv('data/spdr-gold-trust.csv', sep=';')
-    ca = pd.read_csv('data/usdollar.csv', sep=';')
-    st = pd.read_csv('data/amundi-msci-wrld-ae-c.csv', sep=';')
-    cb = pd.read_csv('data/ishares-global-corporate-bond-$.csv', sep=';')
-    pb = pd.read_csv('data/db-x-trackers-ii-global-sovereign-5.csv', sep=';')
-    p_al = pd.read_csv('data/portfolio_allocations.csv')
+def return_value(go, ca , st, cb, pb, p_al, prices_paid):
 
-    #we store the prices of the assets at the the beginning of the year
-    prices_paid = []
-    prices_paid.extend([st.iloc[-1]['Price'], cb.iloc[-1]['Price'], pb.iloc[-1]['Price'], go.iloc[-1]['Price'], ca.iloc[-1]['Price']])
 
     #we calculate the buy amount with the prices of the assets at the beginning of the year
     buy_amount = []
@@ -38,17 +29,8 @@ def return_value():
 
     return portfolio_return
 
-def volatility():
-    go = pd.read_csv('data/spdr-gold-trust.csv', sep=';')
-    ca = pd.read_csv('data/usdollar.csv', sep=';')
-    st = pd.read_csv('data/amundi-msci-wrld-ae-c.csv', sep=';')
-    cb = pd.read_csv('data/ishares-global-corporate-bond-$.csv', sep=';')
-    pb = pd.read_csv('data/db-x-trackers-ii-global-sovereign-5.csv', sep=';')
-    p_al = pd.read_csv('data/portfolio_allocations.csv')
+def volatility(go, ca , st, cb, pb, p_al, prices_paid):
 
-    prices_paid = [st.iloc[-1]['Price'], cb.iloc[-1]['Price'], pb.iloc[-1]['Price'], go.iloc[-1]['Price'],
-                   ca.iloc[-1]['Price']]
-    # print(prices_paid)
     p_al['shares_ST'] = p_al['ST'] * 100 / prices_paid[0]
     p_al['shares_CB'] = p_al['CB'] * 100 / prices_paid[1]
     p_al['shares_PB'] = p_al['PB'] * 100 / prices_paid[2]
@@ -63,15 +45,23 @@ def volatility():
                          assets_volatility[2] * p_al['shares_PB'] + assets_volatility[3] * p_al['shares_GO'] + \
                          assets_volatility[4] * p_al['shares_CA']
 
+
     return volatility
-
-
 
 if __name__ == '__main__':
 
+    go = pd.read_csv('data/spdr-gold-trust.csv', sep=';')
+    ca = pd.read_csv('data/usdollar.csv', sep=';')
+    st = pd.read_csv('data/amundi-msci-wrld-ae-c.csv', sep=';')
+    cb = pd.read_csv('data/ishares-global-corporate-bond-$.csv', sep=';')
+    pb = pd.read_csv('data/db-x-trackers-ii-global-sovereign-5.csv', sep=';')
     p_al = pd.read_csv('data/portfolio_allocations.csv')
 
-    p_al['RETURN'] = return_value()
-    p_al['VOLATILITY'] = volatility()
+    # we store the prices of the assets at the the beginning of the year
+    prices_paid = []
+    prices_paid.extend([st.iloc[-1]['Price'], cb.iloc[-1]['Price'], pb.iloc[-1]['Price'], go.iloc[-1]['Price'], ca.iloc[-1]['Price']])
 
+    p_al['RETURN'] = return_value(go, ca, st, cb, pb, p_al, prices_paid)
+    p_al['VOLATILITY'] = volatility(go, ca, st, cb, pb, p_al, prices_paid)
+    p_al = p_al.drop(['shares_ST', 'shares_CB', 'shares_PB', 'shares_GO', 'shares_CA'], axis=1)
     p_al.to_csv('data/portfolio_metrics.csv')
