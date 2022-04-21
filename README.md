@@ -13,6 +13,7 @@ Repository:
         PortfolioAllocation.py: this python files contains the code for generating the different asset combination
             for each portfolio.
         ReturnAnalysis.ipynb: this jupyter notebook contains the data analysis performed for the return performance
+        ReturnRiskAnalysis.ipynb: this jupyter notebook contains the data analysis performed for the return vs risk performance
     README.md
     requirement.txt: this file provides a list of the packages that are needed for the user to run the code.
 
