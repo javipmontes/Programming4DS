@@ -79,7 +79,7 @@ class ConnectToInvesting:
         for option in self.connection_options:
             self.webdriver_options.add_argument(option)
 
-    # Save the dataframe in a csv file and store it inside the data folder 
+    # Save the dataframe in a csv file and store it inside the data folder
     def save_data(self, df):
         file_name = self.asset_name
         df.to_csv('data/{}.csv'.format(file_name), sep=";", index=False)
@@ -114,41 +114,26 @@ class ConnectToInvesting:
             # Clicking on the apply button
             apply_button = driver.find_element_by_id('applyBtn')
             apply_button.click()
-            print('Date range sent!')
+            print('Date range sent!!')
             time.sleep(5)
 
             # Retrieve the table data
-            #data = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'curr_table')))
-            webtable_df = pd.read_html(WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'curr_table'))).get_attribute('outerHTML'))[
-                0]
-            df = webtable_df.drop(['Open', 'High', 'Low'], axis=1)
+            webtable_df = pd.read_html(WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'curr_table'))).get_attribute('outerHTML'))[0]
+            df = pd.DataFrame(data=webtable_df['Date'], columns=['Date'])
+            df['Price'] = webtable_df['Price']
             df['Date'] = pd.to_datetime(df['Date'], infer_datetime_format=True)
 
-            '''row_list = []
-            # Access each row of the table
-            for row in data.find_elements_by_xpath('//*[@id="curr_table"]/tbody/tr'):
-                date = row.find_element_by_xpath('.//td[1]').text
-                price = row.find_element_by_xpath('.//td[2]').text
-                change = row.find_element_by_xpath('.//td[6]').text
-                row_item = {
-                    "Date": date_translator(date),
-                    "Price": float(price),
-                    "Change": change
-                }
-                row_list.append(row_item)'''
-
             # Store the retrieved data in a pandas Dataframe
-            #df = pd.DataFrame(row_list)
             df = create_missing_dates(df)
             df = interpolate_df(df, self.asset_name)
             df = return_to_normal(df)
 
-            print('Data received!')
+            print('Data received!!')
 
             if save_file:
                 print('Saving data...')
                 self.save_data(df)
-                print('Data saved!')
+                print('Data saved!!')
                 print('----------------')
 
             if print_data:
