@@ -67,8 +67,8 @@ def return_to_normal(df):
 
 
 # Load the datasets
-'''csv_name_list = ['amundi-msci-wrld-ae-c__.csv', 'db-x-trackers-ii-global-sovereign-5__.csv',
-                 'ishares-global-corporate-bond-$__.csv', 'spdr-gold-trust__.csv', 'usdollar__.csv']
+'''csv_name_list = ['amundi-msci-wrld-ae-c.csv', 'db-x-trackers-ii-global-sovereign-5.csv',
+                 'ishares-global-corporate-bond-$.csv', 'spdr-gold-trust.csv', 'usdollar.csv']
 
 for file_name in csv_name_list:
     complete_path = os.path.join("data", file_name)

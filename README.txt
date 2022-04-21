@@ -18,7 +18,7 @@ Repository:
 
 ---------------------
 How to run:
-1. Run the ConnectToInvecting.py file. This file will generate the 5 csv files that contains the date, price and change
+1. Run the ConnectToInvesting.py file. This file will generate the 5 csv files that contains the date, price and change
 values for the asset. It has a class that allows to deal with the url for the scrapping. It takes as argument the URL
 for the main page of the asset in the format https://www.investing.com/indices/ASSET (the "-historical-data" part is
 added by the class). It has a method for retrieving the data that allows some parameters like start and end date. This
