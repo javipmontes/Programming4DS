@@ -17,24 +17,19 @@ def create_missing_dates(df):
     df['Date'] = df['Date'].dt.strftime('%d-%m-%Y')
     # Reverse the order of the Date column
     df['Date'] = df['Date'].values[::-1]
+    df['Price'] = df['Price'].values[::-1]
     # Set the Date as the new index
     df = df.set_index(df['Date'], verify_integrity=True)
     # Drop the Date column
     df = df.drop('Date', 1)
-    # Get rid of the last character of the Change column to be able to perform interpolation
-    change = df.columns[-1]
-    df[change] = df[change].str[:-1]
-    df[change] = pd.to_numeric(df[change])
     # Reindex the dataframe to place the missing dates
     date_range = pd.date_range('01-01-2020', '12-31-2020').strftime('%d-%m-%Y')
     df = df.reindex(date_range)
-    # If the first or last value of the dataframe stills be NaN set it equals to the nearest not NaN value
+    # If the first or last value of the dataframe stills be NaN, set it equals to the nearest not NaN value
     if np.isnan(df['Price'].iloc[0]):
         df['Price'].iloc[0] = df['Price'].iloc[1]
-        df[change].iloc[0] = df[change].iloc[1]
     if np.isnan(df['Price'].iloc[-1]):
         df['Price'].iloc[-1] = df['Price'].iloc[-2]
-        df[change].iloc[-1] = df[change].iloc[-2]
     # The resulting dataframe will have the missing dates with NaN values placed at its columns
     return df
 
@@ -43,8 +38,6 @@ def create_missing_dates(df):
 def interpolate_df(df, csv_name):
     # Use linear interpolation
     df = df.interpolate()
-    change = df.columns[-1]
-    df[change] = df[change].round(2)
     df['Price'] = df['Price'].round(2)
     # Add the last character to the Change column
     """last_char = ''
@@ -63,6 +56,8 @@ def return_to_normal(df):
     # Set the index as the Date column and reset the index
     df['Date'] = df.index
     df = df.reset_index().drop('index', 1)
+    df['Date'] = df['Date'].values[::-1]
+    df['Price'] = df['Price'].values[::-1]
     return df
 
 
