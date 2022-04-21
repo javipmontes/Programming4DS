@@ -4,15 +4,16 @@ import pandas as pd
 def return_value(go, ca, st, cb, pb, p_al, prices_paid):
     # we calculate the buy amount with the prices of the assets at the beginning of the year
     buy_amount = []
+    price_cash = 1
     for i in range(len(p_al)):
         buy_amount.append(p_al.iloc[i]['ST'] * prices_paid[0] + p_al.iloc[i]['CB'] * prices_paid[1] +
                           p_al.iloc[i]['PB'] * prices_paid[2] + p_al.iloc[i]['GO'] * prices_paid[3] +
-                          p_al.iloc[i]['CA'] * prices_paid[4])
+                          p_al.iloc[i]['CA'] * price_cash)
 
     # we store the prices of the assets at the the end of the year
     prices_currently = []
     prices_currently.extend(
-        [st.iloc[0]['Price'], cb.iloc[0]['Price'], pb.iloc[0]['Price'], go.iloc[0]['Price'], ca.iloc[0]['Price']])
+        [st.iloc[0]['Price'], cb.iloc[0]['Price'], pb.iloc[0]['Price'], go.iloc[0]['Price'], ca.iloc[0]['Price'] / 100])
 
     # we calculate the current value with the prices of the assets at the end of the year
     current_value = []
