@@ -33,9 +33,9 @@ but it can be changed by adding asset_names and increment) This will generate th
 volatility. It uses the different portfolio configuration data from the portfolio_allocation.csv to generate a new file
 with the return and volatility columns for each portfolio called portfolio_metrics.csv.
 
-4. Run or see the ReturnAnalysis.ipynb file. This file uses the portfolio_metrics.csv file to generate the different plots
+4. Run or explore the ReturnAnalysis.ipynb file. This file uses the portfolio_metrics.csv file to generate the different plots
 needed for assessing the questions related to the Return part of the strategies' analysis. It will generate a histogram,
 a distribution plot and a box plot graphics.
 
-5. Run or see the ReturnAnalysis.ipynb file. This file uses the portfolio_metrics.csv file to generate different plots needed for assessing the questions related to the Return vs Risk part of the strategies' analysis. It will generate a scatterplot and different stacked bar-charts for different volatilities.
+5. Run or explore the ReturnAnalysis.ipynb file. This file uses the portfolio_metrics.csv file to generate different plots needed for assessing the questions related to the Return vs Risk part of the strategies' analysis. It will generate a scatterplot and different stacked bar-charts for different volatilities.
 
