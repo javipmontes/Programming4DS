@@ -1,68 +1,134 @@
 import pandas as pd
+import numpy as np
 
 
-def return_value(go, ca, st, cb, pb, p_al, prices_paid):
-    # we calculate the buy amount with the prices of the assets at the beginning of the year
-    buy_amount = []
-    price_cash = 1
-    for i in range(len(p_al)):
-        buy_amount.append(p_al.iloc[i]['ST'] * prices_paid[0] + p_al.iloc[i]['CB'] * prices_paid[1] +
-                          p_al.iloc[i]['PB'] * prices_paid[2] + p_al.iloc[i]['GO'] * prices_paid[3] +
-                          p_al.iloc[i]['CA'] * price_cash)
+class PortfolioPerformance:
+    """
+    Class for computing the performance (return and volatility) for the different portfolios.
+    """
+    def __init__(self, st_path='data/amundi-msci-wrld-ae-c.csv', cb_path='data/ishares-global-corporate-bond-$.csv',
+                 pb_path='data/db-x-trackers-ii-global-sovereign-5.csv', go_path='data/spdr-gold-trust.csv',
+                 ca_path='data/usdollar.csv', portfolios_path='data/portfolio_allocations.csv'):
+        """
+        Initialization function. Takes as parameter the name of the files where the data is store, five for financial
+        data and the last one with the different portfolios. The las file of the data must be the dollar.
+        """
+        print('Loading the data...')
+        self.st_data = pd.read_csv(st_path, sep=';')
+        self.cb_data = pd.read_csv(cb_path, sep=';')
+        self.pb_data = pd.read_csv(pb_path, sep=';')
+        self.go_data = pd.read_csv(go_path, sep=';')
+        self.ca_data = pd.read_csv(ca_path, sep=';')
+        self.portfolios_file = pd.read_csv(portfolios_path)
+        self.initial_price = []
+        print('Data loaded!!')
+        print('---------------------')
 
-    # we store the prices of the assets at the the end of the year
-    prices_currently = []
-    prices_currently.extend(
-        [st.iloc[0]['Price'], cb.iloc[0]['Price'], pb.iloc[0]['Price'], go.iloc[0]['Price'], ca.iloc[0]['Price'] / 100])
-
-    # we calculate the current value with the prices of the assets at the end of the year
-    current_value = []
-    for i in range(len(p_al)):
-        current_value.append(p_al.iloc[i]['ST'] * prices_currently[0] + p_al.iloc[i]['CB'] * prices_currently[1] +
-                             p_al.iloc[i]['PB'] * prices_currently[2] + p_al.iloc[i]['GO'] * prices_currently[3] +
-                             p_al.iloc[i]['CA'] * prices_currently[4])
-
-    # we find the return value by applying the formule to all the portfolio allocations
-    portfolio_return = []
-    for i in range(len(p_al)):
-        portfolio_return.append((current_value[i] - buy_amount[i]) / buy_amount[i] * 100)
-
-    return portfolio_return
-
-
-def volatility(go, ca, st, cb, pb, p_al, prices_paid):
-    p_al['shares_ST'] = p_al['ST'] * 100 / prices_paid[0]
-    p_al['shares_CB'] = p_al['CB'] * 100 / prices_paid[1]
-    p_al['shares_PB'] = p_al['PB'] * 100 / prices_paid[2]
-    p_al['shares_GO'] = p_al['GO'] * 100 / prices_paid[3]
-    p_al['shares_CA'] = p_al['CA'] * 100 / prices_paid[4]
-
-    assets_volatility = []
-    for asset in [go, ca, st, cb, pb]:
-        assets_volatility.append(100 * asset.Price.std() / asset.Price.mean())
-
-    volatility = assets_volatility[0] * p_al['shares_ST'] + assets_volatility[1] * p_al['shares_CB'] + \
-                 assets_volatility[2] * p_al['shares_PB'] + assets_volatility[3] * p_al['shares_GO'] + \
-                 assets_volatility[4] * p_al['shares_CA']
-
-    return volatility
+    def get_initial_price(self):
+        """
+        Function for computing the initial price for the different assets. The price for the dollar is always one.
+        The function will store the values in an attribute of the class.
+        """
+        print('Obtaining initial price for each asset...')
+        self.initial_price.extend([self.st_data.iloc[-1]['Price'], self.cb_data.iloc[-1]['Price'],
+                                   self.pb_data.iloc[-1]['Price'], self.go_data.iloc[-1]['Price'], 1])
+        print('Initial price obtained!!')
+        print('---------------------')
 
 
-if __name__ == '__main__':
-    go = pd.read_csv('data/spdr-gold-trust.csv', sep=';')
-    ca = pd.read_csv('data/usdollar.csv', sep=';')
-    st = pd.read_csv('data/amundi-msci-wrld-ae-c.csv', sep=';')
-    cb = pd.read_csv('data/ishares-global-corporate-bond-$.csv', sep=';')
-    pb = pd.read_csv('data/db-x-trackers-ii-global-sovereign-5.csv', sep=';')
-    p_al = pd.read_csv('data/portfolio_allocations.csv')
+    def compute_shares_number(self):
+        """
+        Function for computing the number of share of each asset than can be bought with the different portfolio
+        configurations. As it is permitted to buy part of shares the number initial investment is 1, as it will easy the
+        computation.
+        """
+        print('Computing number of shares per portfolio and asset...')
+        self.portfolios_file['ST_shares'] = self.portfolios_file['ST'] / self.initial_price[0]
+        self.portfolios_file['CB_shares'] = self.portfolios_file['CB'] / self.initial_price[1]
+        self.portfolios_file['PB_shares'] = self.portfolios_file['PB'] / self.initial_price[2]
+        self.portfolios_file['GO_shares'] = self.portfolios_file['GO'] / self.initial_price[3]
+        self.portfolios_file['CA_shares'] = self.portfolios_file['CA'] / self.initial_price[4]
+        print('Shares computed!!')
+        print('---------------------')
 
-    # we store the prices of the assets at the the beginning of the year
-    prices_paid = []
-    prices_paid.extend(
-        [st.iloc[-1]['Price'], cb.iloc[-1]['Price'], pb.iloc[-1]['Price'], go.iloc[-1]['Price'], ca.iloc[-1]['Price']])
+    def compute_return(self):
+        """
+        Function for computing the return performance of each portfolio.
+        """
+        print('Computing return for each portfolio...')
+        # Generating a new column in the dataframe for storing the total initial value for each portfolio
+        # In the case of the dollar the price column is divided by 100.
+        self.portfolios_file['initial_value'] = self.portfolios_file['ST_shares'] * self.initial_price[0] + \
+                                                self.portfolios_file['CB_shares'] * self.initial_price[1] + \
+                                                self.portfolios_file['PB_shares'] * self.initial_price[2] + \
+                                                self.portfolios_file['GO_shares'] * self.initial_price[3] + \
+                                                self.portfolios_file['CA_shares'] * self.initial_price[4]
 
-    p_al['RETURN'] = return_value(go, ca, st, cb, pb, p_al, prices_paid)
-    p_al['VOLATILITY'] = volatility(go, ca, st, cb, pb, p_al, prices_paid)
-    p_al = p_al.drop(['shares_ST', 'shares_CB', 'shares_PB', 'shares_GO', 'shares_CA'], axis=1)
-    p_al.to_csv('data/portfolio_metrics.csv')
-    print('Porfolio performance saved!')
+        # Generating a new column in the dataframe for storing the total final value for each portfolio
+        # In the case of the dollar the price column is divided by 100.
+        self.portfolios_file['final_value'] = self.portfolios_file['ST_shares'] * self.st_data.Price.iloc[0] + \
+                                              self.portfolios_file['CB_shares'] * self.cb_data.Price.iloc[0] + \
+                                              self.portfolios_file['PB_shares'] * self.pb_data.Price.iloc[0] + \
+                                              self.portfolios_file['GO_shares'] * self.go_data.Price.iloc[0] + \
+                                              self.portfolios_file['CA_shares'] * self.ca_data.Price.iloc[0] / 100
+
+        # Computing the return value for each portfolio:
+        # return = (final_value - initial_value) / initial_value * 100
+        self.portfolios_file['RETURN'] = (self.portfolios_file['final_value'] - self.portfolios_file['initial_value']) \
+                                         / self.portfolios_file['initial_value'] * 100
+        # Dropping the initial and final values columns as they are not necessary anymore.
+        self.portfolios_file = self.portfolios_file.drop(['initial_value', 'final_value'], axis=1)
+        print('Return computed!!')
+        print('---------------------')
+
+    def compute_volatility(self):
+        """
+        Function for computing the volatility performance of each portfolio.
+        """
+        print('Computing volatility for each portfolio...')
+
+        # Create an empty column with the volatility
+        self.portfolios_file['VOLATILITY'] = np.nan
+        # Lop for each one fo the portfolios.
+        for portfolio in range(len(self.portfolios_file)):
+            values = []
+            # Lop for each one of the date in the financial dataframe for computing the value for each date and each
+            # asset. The dollar is divided by 100.
+            for date in range(len(self.st_data)):
+                st_value = self.portfolios_file['ST_shares'].iloc[portfolio] * self.st_data['Price'].iloc[date]
+                cb_value = self.portfolios_file['CB_shares'].iloc[portfolio] * self.cb_data['Price'].iloc[date]
+                pb_value = self.portfolios_file['PB_shares'].iloc[portfolio] * self.pb_data['Price'].iloc[date]
+                go_value = self.portfolios_file['GO_shares'].iloc[portfolio] * self.go_data['Price'].iloc[date]
+                ca_value = self.portfolios_file['CA_shares'].iloc[portfolio] * self.ca_data['Price'].iloc[date] / 100
+                # Compute the total value for each date by summing the values.
+                total_value = st_value + cb_value + pb_value + go_value + ca_value
+                values.append(total_value)
+
+            # Compute the volatility for each portfolio:
+            # volatility = standard_deviation(value) / mean(value) * 100
+            self.portfolios_file['VOLATILITY'].iloc[portfolio] = np.std(values) / np.mean(values) * 100
+
+        print('Volatility computed!!')
+        print('---------------------')
+
+    def save_file(self, file_path, file_name):
+        """
+        Function for saving the file with the portfolio performance (return and volatility).
+        Arguments:
+            file_path: path to the folder to store the .csv file
+            file_name: name of the file to be saved.
+        """
+        print('Saving file...')
+        self.portfolios_file = self.portfolios_file.drop(['ST_shares', 'CB_shares', 'PB_shares', 'GO_shares',
+                                                          'CA_shares'], axis=1)
+        self.portfolios_file.to_csv(file_path + file_name, index=False)
+        print('File saved!!')
+        print('---------------------')
+
+
+portfolio_data = PortfolioPerformance()
+portfolio_data.get_initial_price()
+portfolio_data.compute_shares_number()
+portfolio_data.compute_return()
+portfolio_data.compute_volatility()
+portfolio_data.save_file('data/', 'portfolio_metrics.csv')

@@ -39,13 +39,15 @@ class PortfolioAllocation:
         The options are stored in the self.invest_options variable.
         """
         self.invest_options = []
-        print('Generating different portfolio options!')
+        print('Generating different portfolio options...')
 
         for i in itertools.product(np.arange(1.0, 0 - self.increment, -self.increment),
                                    repeat=len(self.asset_names)):
             i = np.round(i, 1)
             if sum(i) == 1:
                 self.invest_options.append(i)
+        print('Portfolios generated!!')
+        print('---------------------')
 
     def portfolio_allocation(self):
         """
