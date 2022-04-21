@@ -13,11 +13,12 @@ Repository:
         PortfolioAllocation.py: this python files contains the code for generating the different asset combination
             for each portfolio.
         ReturnAnalysis.ipynb: this jupyter notebook contains the data analysis performed for the return performance
-    README.txt
-    requirement.txt: this file provides a list of the packages that are needed for the user to room the code.
+    README.md
+    requirement.txt: this file provides a list of the packages that are needed for the user to run the code.
 
 ---------------------
-How to run:
+### How to run:
+
 1. Run the ConnectToInvesting.py file. This file will generate the 5 csv files that contains the date, price and change
 values for the asset. It has a class that allows to deal with the url for the scrapping. It takes as argument the URL
 for the main page of the asset in the format https://www.investing.com/indices/ASSET (the "-historical-data" part is
@@ -36,5 +37,5 @@ with the return and volatility columns for each portfolio called portfolio_metri
 needed for assessing the questions related to the Return part of the strategies' analysis. It will generate a histogram,
 a distribution plot and a box plot graphics.
 
-5 Run the
+5. Run the
 
