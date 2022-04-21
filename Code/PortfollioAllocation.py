@@ -31,3 +31,4 @@ class PortfolioAllocation:
 
 portfolio = PortfolioAllocation().portfolio_allocation()
 save_file(portfolio)
+print('Portfolio options saved!')
